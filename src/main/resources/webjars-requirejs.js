@@ -1,3 +1,4 @@
+/* RequireJs Legacy*/
 requirejs.config({
 	paths : {
 		"bootcards" : webjars.path("bootcards", "js/bootcards"),
@@ -9,6 +10,6 @@ requirejs.config({
 		"bootcards-css-ios" : webjars.path("bootcards", "css/bootcards-ios")
 	},
 	shim : {
-		"bootcards" : [ "jquery", "fastclick" ]
+		"bootcards" : [ "bootstrap" ]
 	},
 });

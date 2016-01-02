@@ -31,7 +31,7 @@
 					"bootcards-css-ios": "css/bootcards-ios"
 				},
 				"shim": { 
-					"bootcards": ["jquery", "fastclick"] 
+					"bootcards": [ "bootstrap"] 
 				}
 			}
 		</requirejs>
@@ -58,25 +58,7 @@
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
-			<version>3.3.6</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>jquery</artifactId>
-			<version>[1.11.3,)</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>font-awesome</artifactId>
-			<version>[4,)</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>fastclick</artifactId>
-			<version>[1.0.3,)</version>
+			<version>[3,)</version>
 		</dependency>
 
 	</dependencies>
