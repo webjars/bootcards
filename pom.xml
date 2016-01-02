@@ -1,0 +1,214 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<packaging>jar</packaging>
+	<groupId>org.webjars</groupId>
+	<artifactId>bootcards</artifactId>
+	<version>1.1.2</version>
+	<name>Bootcards 1.1.2</name>
+	<description>WebJar for Bootcards</description>
+	<url>http://bootcards.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<bootcards.version>1.1.2</bootcards.version>
+		<upstreamVersion>${bootcards.version}</upstreamVersion>
+		<bootcards.sourceUrl>https://github.com/bootcards/bootcards/archive</bootcards.sourceUrl>
+		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
+		<requirejs>
+			{
+				"paths":{
+					"bootcards": "js/bootcards",
+					"bootcards-css": "css/bootcards-desktop",
+					"bootcards-css-android": "css/bootcards-andriod",
+					"bootcards-css-ios": "css/bootcards-ios"
+				},
+				"shim": { 
+					"bootcards": ["jquery", "fastclick"] 
+				}
+			}
+		</requirejs>
+	</properties>
+
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>https://spdx.org/licenses/MIT#licenseText</url>
+			<distribution>repo</distribution>
+		</license>
+
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>webjars</id>
+			<url>http://webjars.org</url>
+		</developer>
+	</developers>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>[1.11.3,)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>font-awesome</artifactId>
+			<version>[4,)</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>fastclick</artifactId>
+			<version>[1.0.3,)</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>download-single</goal>
+						</goals>
+						<configuration>
+							<url>${bootcards.sourceUrl}</url>
+							<fromFile>${upstreamVersion}.zip</fromFile>
+							<toFile>${project.build.directory}/${project.artifactId}.zip</toFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<echo message="unzip archive" />
+								<unzip src="${project.build.directory}/${project.artifactId}.zip"
+									dest="${project.build.directory}" />
+								<echo message="moving resources" />
+								<move todir="${destDir}">
+									<fileset
+										dir="${project.build.directory}/bootcards-${upstreamVersion}/dist"
+										includes="js/,css/,fonts/" />
+									<fileset
+										dir="${project.build.directory}/bootcards-${upstreamVersion}/"
+										includes="js/,less/" excludes="js/tests/" />
+								</move>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.3</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<includes>
+						<include>
+							${project.build.directory}/classes/META-INF/resources/webjars/bootcards/*/css/*.css
+						</include>
+					</includes>
+					<inputFilePattern>(.*).css</inputFilePattern>
+					<outputFilePattern>$1-jsf.css</outputFilePattern>
+					<replacements>
+						<replacement>
+							<token>url\('?+\.\.\/fonts\/([^\s\)?#']+)[\?#]{0,2}([^';]*)+?'?\)</token>
+							<value>url("#{resource['webjars:bootcards/${project.version}/fonts/$1']}&amp;v=${project.version}&amp;#$2")</value>
+						</replacement>
+					</replacements>
+					<regex>true</regex>
+					<regexFlags>
+						<regexFlag>CASE_INSENSITIVE</regexFlag>
+					</regexFlags>
+					<unescape>true</unescape>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.googlecode.todomap</groupId>
+				<artifactId>maven-jettygzip-plugin</artifactId>
+				<version>0.0.5</version>
+				<configuration>
+					<webappDirectory>target/classes</webappDirectory>
+					<outputDirectory>target/classes</outputDirectory>
+					<extensions>
+						<extension>js</extension>
+						<extension>css</extension>
+						<extension>less</extension>
+					</extensions>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>process</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.1</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.5</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>sonatype-nexus-staging</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<targetPath>${destDir}</targetPath>
+			</resource>
+		</resources>
+	</build>
+</project>
